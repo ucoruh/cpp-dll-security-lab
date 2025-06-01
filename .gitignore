@@ -809,3 +809,4 @@ nbdist/
 # Windows desktop.ini files 
 **/desktop.ini 
 desktop.ini 
+/build-test/*

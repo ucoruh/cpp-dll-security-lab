@@ -1,7 +1,7 @@
 # 🎓 Dinamik ve Statik Kütüphane Öğrenme Laboratuvarı
 
 <div align="center">
-  
+
 ![Versiyon](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![Lisans](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)
@@ -20,20 +20,24 @@
 Bu laboratuvar projesi ile aşağıdaki konularda uzmanlaşacaksınız:
 
 ### 🧩 **Kütüphane Türleri ve Farkları**
+
 - **Statik Kütüphaneler (.lib/.a)**: Derleme zamanında bağlanan kütüphaneler
 - **Dinamik Kütüphaneler (.dll/.so)**: Çalışma zamanında yüklenen kütüphaneler
 - Her iki yaklaşımın avantaj ve dezavantajları
 
 ### 🔗 **DLL Bağlama Teknikleri**
+
 - **İmplisit Bağlama**: Header dosyası ile otomatik bağlama
 - **Eksplisit Bağlama**: LoadLibrary/GetProcAddress API'leri ile dinamik yükleme
 
 ### 🛡️ **Güvenlik Kavramları**
+
 - DLL Hijacking/Replacement saldırıları
 - Güvenlik açıkları ve korunma yöntemleri
 - Güvenilir olmayan DLL'lerin riskleri
 
 ### 💻 **Çoklu Dil Desteği**
+
 - C/C++ ile DLL geliştirme
 - C# ile P/Invoke kullanımı
 - Diller arası veri paylaşımı
@@ -43,7 +47,7 @@ Bu laboratuvar projesi ile aşağıdaki konularda uzmanlaşacaksınız:
 ## 📂 Proje Mimarisi ve Dosya Yapısı
 
 ```
-matematik-kutuphanesi/
+cpp-dll-security-lab/
 │
 ├── 📁 src/                           # Ana kütüphane kaynak kodları
 │   ├── matematik.h                   # Kütüphane arayüz tanımları
@@ -60,20 +64,36 @@ matematik-kutuphanesi/
 │   │   ├── Program.cs
 │   │   └── CSharpClient.csproj
 │   └── CSharpExplicitLoader/         # C# explicit loader
+│       ├── Program.cs
+│       └── CSharpExplicitLoader.csproj
 │
 ├── 📁 simulasyonlar/                 # Eğitici simulasyonlar
 │   ├── dll_events_monitor.ps1        # DLL yaşam döngüsü izleme
 │   ├── dll_switch.ps1               # DLL değişimi simülasyonu
 │   └── dll_switch.bat               # Batch versiyonu
 │
-├── 📁 build/                         # CMake derleme çıktıları
-│   ├── bin/                          # Executable dosyalar
-│   └── lib/                          # Kütüphane dosyaları
+├── 📁 build-test/                    # CMake derleme çıktıları (öğrenci oluşturur)
+│   ├── bin/Debug/                    # Executable ve DLL dosyaları
+│   │   ├── matematik_client.exe
+│   │   ├── matematik_static_client.exe
+│   │   ├── explicit_dll_loader.exe
+│   │   ├── matematik.dll
+│   │   ├── malicious_matematik.dll
+│   │   ├── matematik_dll_events.log
+│   │   └── malicious_dll_events.log
+│   └── lib/Debug/                    # Kütüphane dosyaları
+│       └── matematik_static.lib
 │
-├── 📁 bin/                           # C# uygulamaları için
-│   └── Debug/net6.0/                # .NET runtime çıktıları
+├── 📁 bin/Debug/net6.0/             # C# uygulamaları için (otomatik oluşur)
+│   ├── CSharpClient.dll
+│   ├── CSharpExplicitLoader.dll
+│   └── matematik.dll                # Kopyalanan C++ DLL
 │
-└── CMakeLists.txt                    # Proje yapılandırma dosyası
+├── 📁 git-scripts/                   # Git ve geliştirme araçları (isteğe bağlı)
+│
+├── CMakeLists.txt                    # Proje yapılandırma dosyası
+├── README.md                         # Bu dosya
+└── .gitignore                        # Git ignore kuralları
 ```
 
 ---
@@ -98,8 +118,8 @@ cd matematik-kutuphanesi
 
 ```bash
 # 1. Build klasörü oluştur
-mkdir build
-cd build
+mkdir build-test
+cd build-test
 
 # 2. CMake ile proje yapılandır
 cmake ..
@@ -129,7 +149,7 @@ dotnet build
 cd ../..
 
 # DLL'i C# çıktı klasörüne kopyala
-copy build\bin\Debug\matematik.dll bin\Debug\net6.0\
+copy build-test\bin\Debug\matematik.dll bin\Debug\net6.0\
 ```
 
 ---
@@ -177,10 +197,11 @@ DLL aşağıdaki olayları loglar:
 
 ```bash
 # DLL'i otomatik yükleyen C++ uygulaması
-.\build\bin\Debug\matematik_client.exe
+.\build-test\bin\Debug\matematik_client.exe
 ```
 
 **Kod Örneği:**
+
 ```cpp
 #include "matematik.h"
 #include <iostream>
@@ -196,10 +217,11 @@ int main() {
 
 ```bash
 # Statik kütüphane kullanan C++ uygulaması
-.\build\bin\Debug\matematik_static_client.exe
+.\build-test\bin\Debug\matematik_static_client.exe
 ```
 
 **Avantajları:**
+
 - ✅ Bağımsız çalışan executable
 - ✅ DLL saldırılarından korunmalı
 - ❌ Daha büyük dosya boyutu
@@ -208,10 +230,11 @@ int main() {
 
 ```bash
 # DLL'i programatik olarak yükleyen uygulama
-.\build\bin\Debug\explicit_dll_loader.exe
+.\build-test\bin\Debug\explicit_dll_loader.exe
 ```
 
 **Kod Özeti:**
+
 ```cpp
 // DLL yükle
 HMODULE hDLL = LoadLibraryA("matematik.dll");
@@ -235,6 +258,7 @@ FreeLibrary(hDLL);
 ```
 
 **Kod Örneği:**
+
 ```csharp
 [DllImport("matematik.dll", CallingConvention = CallingConvention.Cdecl)]
 public static extern int topla(int a, int b);
@@ -282,6 +306,7 @@ powershell -ExecutionPolicy Bypass -File .\simulasyonlar\dll_events_monitor.ps1
 ```
 
 Bu simülasyon şunları gösterir:
+
 - DLL yükleme/kaldırma süreçleri
 - Process ve thread olayları
 - İmplisit vs eksplisit yükleme farkları
@@ -316,6 +341,7 @@ int topla(int a, int b) {
 ```
 
 **Önemli Özellikler:**
+
 - Her fonksiyon çağrısı loglanır
 - DLL yaşam döngüsü olayları izlenir
 - Process ID'si ile detaylı takip
@@ -327,13 +353,14 @@ int topla(int a, int b) {
     // Saldırı simülasyonu - eğitim amaçlı
     MessageBoxA(NULL, "Bilgileriniz çalınıyor!", 
                "GÜVENLİK UYARISI", MB_OK | MB_ICONWARNING);
-    
+
     // Normal fonksiyonellik korunur (saldırıyı gizlemek için)
     return a + b;
 }
 ```
 
 **Simüle Edilen Saldırı Türleri:**
+
 - Veri hırsızlığı uyarısı
 - Parola kopyalama uyarısı
 - Dosya şifreleme uyarısı
@@ -357,6 +384,7 @@ FreeLibrary(hDLL);
 ```
 
 **Avantajları:**
+
 - Çalışma zamanında DLL seçimi
 - İsteğe bağlı özellik yükleme
 - Bellek yönetimi kontrolü
@@ -365,14 +393,14 @@ FreeLibrary(hDLL);
 
 ## 📊 Kütüphane Türleri Karşılaştırması
 
-| Özellik | Statik Kütüphane | Dinamik Kütüphane (DLL) |
-|---------|------------------|-------------------------|
-| **Boyut** | ❌ Büyük executable | ✅ Küçük executable |
-| **Bağımlılık** | ✅ Bağımsız | ❌ DLL gerekli |
-| **Güvenlik** | ✅ DLL saldırılarından korunmalı | ❌ DLL değişimine açık |
-| **Bellek** | ❌ Her uygulama ayrı kopya | ✅ Paylaşımlı bellek |
-| **Güncelleme** | ❌ Yeniden derleme gerekli | ✅ Sadece DLL değişir |
-| **Performans** | ✅ Doğrudan çağrı | ❌ İndirection overhead |
+| Özellik        | Statik Kütüphane                | Dinamik Kütüphane (DLL) |
+| -------------- | ------------------------------- | ----------------------- |
+| **Boyut**      | ❌ Büyük executable              | ✅ Küçük executable      |
+| **Bağımlılık** | ✅ Bağımsız                      | ❌ DLL gerekli           |
+| **Güvenlik**   | ✅ DLL saldırılarından korunmalı | ❌ DLL değişimine açık   |
+| **Bellek**     | ❌ Her uygulama ayrı kopya       | ✅ Paylaşımlı bellek     |
+| **Güncelleme** | ❌ Yeniden derleme gerekli       | ✅ Sadece DLL değişir    |
+| **Performans** | ✅ Doğrudan çağrı                | ❌ İndirection overhead  |
 
 ---
 
@@ -381,11 +409,13 @@ FreeLibrary(hDLL);
 ### 🥇 Başlangıç Seviyesi
 
 1. **İlk DLL Deneyimi**
+   
    - Mevcut kodu derleyip çalıştırın
    - Her istemci uygulamasını test edin
    - Log dosyalarını inceleyin
 
 2. **Fonksiyon Ekleme**
+   
    ```c
    // matematik.h'ye ekleyin
    MATEMATIK_API int kare(int x);
@@ -398,11 +428,13 @@ FreeLibrary(hDLL);
 ### 🥈 Orta Seviye
 
 3. **String İşlemleri DLL'i**
+   
    - Yeni bir DLL oluşturun
    - String manipülasyon fonksiyonları ekleyin
    - Unicode desteği ekleyin
 
 4. **Hata Yönetimi**
+   
    ```c
    typedef enum {
        MATEMATIK_OK = 0,
@@ -416,17 +448,20 @@ FreeLibrary(hDLL);
 ### 🥉 İleri Seviye
 
 5. **Cross-Platform Destek**
+   
    - Linux için .so dosyası desteği ekleyin
    - CMake ile conditional compilation
    - Macro uyumluluğu sağlayın
 
 6. **Callback Fonksiyonları**
+   
    ```c
    typedef void (*ProgressCallback)(int percent);
    MATEMATIK_API void uzun_hesaplama(int n, ProgressCallback callback);
    ```
 
 7. **Thread Safety**
+   
    - Mutex ile thread-safe fonksiyonlar
    - Thread-local storage kullanımı
 
@@ -437,6 +472,7 @@ FreeLibrary(hDLL);
 ### ❌ Yaygın Hatalar ve Çözümleri
 
 **1. "DLL bulunamadı" Hatası**
+
 ```bash
 # Çözüm: DLL'i doğru konuma kopyalayın
 copy build\bin\Debug\matematik.dll .
@@ -444,18 +480,21 @@ copy build\bin\Debug\matematik.dll .
 ```
 
 **2. "Fonksiyon bulunamadı" Hatası**
+
 ```bash
 # DLL'deki fonksiyonları kontrol edin
 dumpbin /exports matematik.dll
 ```
 
 **3. C# P/Invoke Hataları**
+
 ```csharp
 // CallingConvention'ı doğru ayarlayın
 [DllImport("matematik.dll", CallingConvention = CallingConvention.Cdecl)]
 ```
 
 **4. CMake Derleme Hataları**
+
 ```bash
 # Build klasörünü temizleyin
 rmdir /s build
@@ -467,14 +506,17 @@ cmake ..
 ### 🔍 Debug İpuçları
 
 1. **Log Dosyalarını Kontrol Edin**
+   
    - `matematik_dll_events.log` - Normal DLL olayları
    - `malicious_dll_events.log` - Saldırı simülasyonu
 
 2. **Process Monitor Kullanın**
+   
    - DLL yükleme süreçlerini izleyin
    - Dosya erişimlerini kontrol edin
 
 3. **Dependency Walker**
+   
    - DLL bağımlılıklarını analiz edin
    - Missing imports'ları bulun
 
@@ -485,18 +527,21 @@ cmake ..
 ### 🔒 DLL Güvenliği Best Practices
 
 1. **DLL İmzalama**
+   
    ```bash
    # Code signing ile DLL'i imzalayın
    signtool sign /f mycert.pfx matematik.dll
    ```
 
 2. **DLL Doğrulama**
+   
    ```c
    // DLL hash kontrolü
    BOOL VerifyDllIntegrity(const char* dllPath);
    ```
 
 3. **Safe DLL Loading**
+   
    ```c
    // SetDllDirectory ile güvenli yükleme
    SetDllDirectory(L"C:\\MyApp\\SecureDlls\\");
@@ -505,11 +550,13 @@ cmake ..
 ### 🚀 Performans Optimizasyonu
 
 1. **Delay Loading**
+   
    ```cpp
    #pragma comment(linker, "/DELAYLOAD:matematik.dll")
    ```
 
 2. **Memory Mapping**
+   
    ```c
    // DLL'i memory-mapped file olarak yükle
    HANDLE hFile = CreateFileMapping(...);
@@ -518,6 +565,7 @@ cmake ..
 ### 🌐 Cross-Language Interoperability
 
 **Python Integration:**
+
 ```python
 import ctypes
 dll = ctypes.CDLL('./matematik.dll')
@@ -527,6 +575,7 @@ result = dll.topla(10, 5)
 ```
 
 **Java Integration:**
+
 ```java
 public class MatematikJNI {
     static {
@@ -541,16 +590,19 @@ public class MatematikJNI {
 ## 📚 Ek Kaynaklar ve Okuma Listesi
 
 ### 📖 Önerilen Kitaplar
+
 - "Programming Windows" - Charles Petzold
 - "Windows System Programming" - Johnson M. Hart
 - "Advanced Windows Debugging" - Mario Hewardt
 
 ### 🌐 Yararlı Linkler
+
 - [Microsoft DLL Documentation](https://docs.microsoft.com/en-us/windows/win32/dlls/)
 - [CMake Tutorial](https://cmake.org/cmake/help/latest/guide/tutorial/)
 - [P/Invoke Reference](https://docs.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke)
 
 ### 🛠️ Geliştirme Araçları
+
 - **Visual Studio** - IDE ve debugger
 - **Process Monitor** - Dosya/registry erişimi izleme
 - **Dependency Walker** - DLL bağımlılık analizi
@@ -563,28 +615,33 @@ public class MatematikJNI {
 ### 🔧 Geliştirme Yönergeleri
 
 1. **Fork ve Clone**
+   
    ```bash
    git fork https://github.com/kullanici/matematik-kutuphanesi
    git clone your-fork-url
    ```
 
 2. **Feature Branch Oluşturma**
+   
    ```bash
    git checkout -b feature/yeni-ozellik
    ```
 
 3. **Kod Standartları**
+   
    - C kodu için K&R style
    - C++ için Google Style Guide
    - C# için Microsoft Coding Conventions
 
 4. **Test Ekleme**
+   
    - Her yeni fonksiyon için test yazın
    - Güvenlik testlerini unutmayın
 
 ### 🐛 Bug Raporu
 
 Issue açarken şunları ekleyin:
+
 - İşletim sistemi ve versiyon
 - Compiler ve versiyon
 - Hata mesajı ve stack trace
@@ -611,15 +668,18 @@ Bu proje akademik ortamlarda, üniversite derslerinde ve eğitim programlarında
 ## 📞 İletişim ve Destek
 
 ### 👨‍💻 Proje Sahipleri
-- **Ana Geliştirici**: [@ugur-coruh](https://github.com/ugur-coruh)
-- **E-posta**: ugur.coruh@bilecik.edu.tr
+
+- **Ana Geliştirici**: Dr. Uğur CORUH [@ucoruh](https://github.com/ucoruh)
+- **E-posta**: ugur.coruh@erdogan.edu.tr
 
 ### 💬 Topluluk Desteği
+
 - **GitHub Issues**: Teknik sorular için
 - **Discussions**: Genel tartışmalar için
 - **Wiki**: Detaylı dokümantasyon
 
 ### 🏫 Eğitim Kurumları İçin
+
 Eğitim kurumları için özel workshop ve training programları mevcuttur. İletişime geçin.
 
 ---
@@ -638,4 +698,143 @@ Eğitim kurumları için özel workshop ve training programları mevcuttur. İle
 
 <p align="center">
   <sub>Son güncelleme: 2024 | Eğitim amaçlı olarak geliştirilmiştir | MIT Lisansı</sub>
-</p> 
+</p>
+
+---
+
+## 🧪 Öğrenciler İçin Adım Adım Test Rehberi
+
+Bu bölüm, öğrencilerin projeyi baştan sona test etmesi için hazırlanmıştır.
+
+### 📋 Ön Koşullar
+
+1. **Visual Studio 2019/2022** (C++ geliştirme araçları ile)
+2. **CMake 3.10+** 
+3. **.NET 6.0 SDK**
+4. **PowerShell** (Windows ile birlikte gelir)
+
+### 🚀 Adım 1: Projeyi Derleme
+
+```bash
+# Terminal/PowerShell'i açın ve proje dizinine gidin
+cd cpp-dll-security-lab
+
+# Build klasörü oluşturun
+mkdir build-test
+cd build-test
+
+# CMake ile yapılandırın
+cmake ..
+
+# Projeyi derleyin
+cmake --build . --config Debug
+```
+
+**Beklenen Sonuç:** Derleme başarılı olmalı, sadece makro redefinition uyarıları normal.
+
+### 🧮 Adım 2: C++ Uygulamalarını Test
+
+```bash
+# İmplisit DLL kullanan uygulama
+.\bin\Debug\matematik_client.exe
+
+# Statik kütüphane kullanan uygulama  
+.\bin\Debug\matematik_static_client.exe
+
+# Eksplisit DLL yükleyici
+.\bin\Debug\explicit_dll_loader.exe
+```
+
+**Beklenen Sonuç:** Her uygulama matematik işlemleri yapmalı ve DLL olaylarını loglamalı.
+
+### 💙 Adım 3: C# Uygulamalarını Test
+
+```bash
+# Ana dizine dön
+cd ..
+
+# C# Client'ı derle ve çalıştır
+cd istemciler\CSharpClient
+dotnet build
+copy ..\..\build-test\bin\Debug\matematik.dll ..\..\bin\Debug\net6.0\
+dotnet run
+
+# C# Explicit Loader'ı test et
+cd ..\CSharpExplicitLoader  
+dotnet build
+dotnet run
+```
+
+**Beklenen Sonuç:** C# uygulamaları matematik işlemleri yapmalı ve DLL'i başarıyla kullanmalı.
+
+### 🎭 Adım 4: Güvenlik Simülasyonlarını Çalıştır
+
+```bash
+# Ana dizine dön
+cd ..\..
+
+# PowerShell ile DLL değişimi simülasyonu
+powershell -ExecutionPolicy Bypass -File .\simulasyonlar\dll_switch.ps1
+
+# Batch ile alternatif
+.\simulasyonlar\dll_switch.bat
+
+# Detaylı DLL yaşam döngüsü izleme
+powershell -ExecutionPolicy Bypass -File .\simulasyonlar\dll_events_monitor.ps1
+```
+
+**Beklenen Sonuç:** 
+- Normal DLL ile çalışma
+- Kötü niyetli DLL ile değişim ve güvenlik uyarıları
+- Orijinal DLL'e geri dönüş
+
+### 📊 Adım 5: Log Dosyalarını İnceleme
+
+```bash
+# Build dizinindeki log dosyalarını kontrol edin
+cd build-test\bin\Debug
+type matematik_dll_events.log
+type malicious_dll_events.log
+```
+
+**Beklenen İçerik:**
+- DLL yükleme/kaldırma olayları
+- Fonksiyon çağrı kayıtları
+- Process ID bilgileri
+
+### ✅ Başarı Kriterleri
+
+Aşağıdaki tüm adımlar başarılı olmalıdır:
+
+1. ✅ **Derleme**: Tüm projeler hatasız derlenmeli
+2. ✅ **C++ Uygulamaları**: 3 farklı uygulama çalışmalı
+3. ✅ **C# Uygulamaları**: 2 farklı uygulama çalışmalı  
+4. ✅ **Simülasyonlar**: DLL değişimi gösterilmeli
+5. ✅ **Log Dosyaları**: Olaylar kaydedilmeli
+
+### 🐛 Yaygın Sorunlar ve Çözümleri
+
+**Problem**: `cmake` komutu bulunamıyor
+```bash
+# Çözüm: CMake'i PATH'e ekleyin veya Visual Studio Developer Command Prompt kullanın
+```
+
+**Problem**: `.NET SDK` bulunamıyor
+```bash
+# Çözüm: .NET 6.0 SDK'yı indirip kurun
+dotnet --version  # Kontrol için
+```
+
+**Problem**: DLL bulunamıyor hatası
+```bash
+# Çözüm: DLL'i doğru konuma kopyalayın
+copy build-test\bin\Debug\matematik.dll bin\Debug\net6.0\
+```
+
+**Problem**: PowerShell execution policy hatası
+```bash
+# Çözüm: Execution policy'yi bypass edin
+powershell -ExecutionPolicy Bypass -File script.ps1
+```
+
+---

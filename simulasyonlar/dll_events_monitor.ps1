@@ -1,5 +1,8 @@
+# DLL Yaşam Döngüsü ve Olay İzleme Simülasyonu
+# Bu script eğitim amaçlı DLL yaşam döngüsü olaylarını gösterir
+
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$Host.UI.RawUI.WindowTitle = "DLL Events Monitor"
+$Host.UI.RawUI.WindowTitle = "🔍 DLL Events Monitor"
 
 function Write-ColoredText {
     param (
@@ -22,7 +25,8 @@ function Show-Header {
     )
     
     Write-Host ""
-    Write-ColoredText "===== $Title =====" "Cyan"
+    Write-ColoredText "🔹 $Title" "Cyan"
+    Write-ColoredText ("=" * ($Title.Length + 3)) "Cyan"
     Write-Host ""
 }
 
@@ -34,20 +38,23 @@ function Remove-LogFile {
     
     if (Test-Path $FilePath) {
         Remove-Item $FilePath -Force
-        Write-ColoredText "Log dosyasi silindi: $FilePath" "Gray"
+        Write-ColoredText "🗑️  Log dosyası silindi: $FilePath" "Gray"
     }
 }
 
 function Wait-ForUser {
     Write-Host ""
-    Write-ColoredText "Devam etmek icin bir tusa basin..." "Yellow"
+    Write-ColoredText "⏸️  Devam etmek için bir tuşa basın..." "Yellow"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     Write-Host ""
 }
 
 # Root klasörüne göre yol
 $rootDir = $PSScriptRoot | Split-Path -Parent
-$buildDir = Join-Path -Path $rootDir -ChildPath "build\bin\Debug"
+$buildDir = Join-Path -Path $rootDir -ChildPath "build-test\bin\Debug"
+
+Write-Host "📁 Build klasörü: $buildDir" -ForegroundColor Gray
+Write-Host ""
 
 # Log dosyalarını temizle
 if (Test-Path $buildDir) {
@@ -56,21 +63,21 @@ if (Test-Path $buildDir) {
     Remove-LogFile -FilePath "malicious_dll_events.log"
 
     Clear-Host
-    Write-ColoredText "DLL YASAM DONGUSU VE OLAY IZLEME SIMULASYONU" "Green"
-    Write-ColoredText "------------------------------------------------" "Green"
+    Write-ColoredText "🔍 DLL YAŞAM DÖNGÜSÜ VE OLAY İZLEME SİMÜLASYONU" "Green"
+    Write-ColoredText "=================================================" "Green"
     Write-Host ""
-    Write-Host "Bu simulasyon, DLL'lerin nasil yuklendigini, kullanildigini ve kaldirildigini gosterir."
-    Write-Host "Implisit ve explisit DLL yukleme teknikleri gosterilecektir."
-    Write-Host "Ayrica kotuye kullanim ornegi icin DLL degistirme de gosterilecektir."
+    Write-Host "📚 Bu simülasyon, DLL'lerin nasıl yüklendiğini, kullanıldığını ve kaldırıldığını gösterir."
+    Write-Host "🔄 İmplisit ve eksplisit DLL yükleme teknikleri gösterilecektir."
+    Write-Host "⚠️  Ayrıca kötüye kullanım örneği için DLL değiştirme de gösterilecektir."
     Write-Host ""
 
     # BÖLÜM 1: İmplisit (Otomatik) DLL Yükleme
-    Show-Header -Title "BOLUM 1: IMPLISIT (OTOMATIK) DLL YUKLEME"
-    Write-Host "Implisit DLL yuklemede, program basladiginda DLL otomatik olarak yuklenir."
-    Write-Host "Bu, Windows'un import table kullanarak yaptigi standart yontemdir."
+    Show-Header -Title "BÖLÜM 1: İMPLİSİT (OTOMATİK) DLL YÜKLEME"
+    Write-Host "📖 İmplisit DLL yüklemede, program başladığında DLL otomatik olarak yüklenir."
+    Write-Host "🔧 Bu, Windows'un import table kullanarak yaptığı standart yöntemdir."
     Write-Host ""
-    Write-ColoredText "matematik_client.exe uygulamasi calistiriliyor..." "Yellow"
-    Write-ColoredText "(Bu uygulama calismasi icin DLL'i otomatik olarak yukleyecek)" "Yellow"
+    Write-ColoredText "🚀 matematik_client.exe uygulaması çalıştırılıyor..." "Yellow"
+    Write-ColoredText "   (Bu uygulama çalışması için DLL'i otomatik olarak yükleyecek)" "Yellow"
     Wait-ForUser
 
     # Dosya kontrolü
@@ -80,23 +87,23 @@ if (Test-Path $buildDir) {
 
         # Log dosyasını oku ve göster
         if (Test-Path "matematik_dll_events.log") {
-            Show-Header -Title "matematik_dll_events.log ICERIGI"
+            Show-Header -Title "📄 matematik_dll_events.log İÇERİĞİ"
             Get-Content "matematik_dll_events.log" | ForEach-Object {
-                Write-ColoredText $_ "Magenta"
+                Write-ColoredText "   $_" "Magenta"
             }
         } else {
-            Write-ColoredText "matematik_dll_events.log dosyasi bulunamadi!" "Red"
+            Write-ColoredText "❌ matematik_dll_events.log dosyası bulunamadı!" "Red"
         }
 
         Wait-ForUser
 
         # BÖLÜM 2: Explisit (Programatik) DLL Yükleme
-        Show-Header -Title "BOLUM 2: EXPLISIT (PROGRAMATIK) DLL YUKLEME"
-        Write-Host "Explisit DLL yuklemede, uygulama LoadLibrary API'sini kullanarak"
-        Write-Host "DLL'i istege bagli olarak yukler ve kaldirir."
+        Show-Header -Title "BÖLÜM 2: EKSPLİSİT (PROGRAMATİK) DLL YÜKLEME"
+        Write-Host "📖 Eksplisit DLL yüklemede, uygulama LoadLibrary API'sini kullanarak"
+        Write-Host "   DLL'i isteğe bağlı olarak yükler ve kaldırır."
         Write-Host ""
-        Write-ColoredText "explicit_dll_loader.exe uygulamasi calistiriliyor..." "Yellow"
-        Write-ColoredText "(Bu uygulama, DLL'i programatik olarak yukleyip kaldiracak)" "Yellow"
+        Write-ColoredText "🚀 explicit_dll_loader.exe uygulaması çalıştırılıyor..." "Yellow"
+        Write-ColoredText "   (Bu uygulama, DLL'i programatik olarak yükleyip kaldıracak)" "Yellow"
         Wait-ForUser
 
         # Dosya kontrolü
@@ -107,32 +114,32 @@ if (Test-Path $buildDir) {
 
             # Log dosyasını oku ve göster
             if (Test-Path "matematik_dll_events.log") {
-                Show-Header -Title "matematik_dll_events.log ICERIGI"
+                Show-Header -Title "📄 matematik_dll_events.log İÇERİĞİ"
                 Get-Content "matematik_dll_events.log" | ForEach-Object {
-                    Write-ColoredText $_ "Magenta"
+                    Write-ColoredText "   $_" "Magenta"
                 }
             } else {
-                Write-ColoredText "matematik_dll_events.log dosyasi bulunamadi!" "Red"
+                Write-ColoredText "❌ matematik_dll_events.log dosyası bulunamadı!" "Red"
             }
 
             Wait-ForUser
 
             # BÖLÜM 3: DLL Değişimi (Saldırı Simulasyonu)
-            Show-Header -Title "BOLUM 3: DLL DEGISIMI (SALDIRI SIMULASYONU)"
-            Write-Host "Bu bolumde, orijinal DLL'in kotu niyetli bir DLL ile degistirilmesi"
-            Write-Host "durumunda ne olacagini gosterecegiz."
+            Show-Header -Title "BÖLÜM 3: DLL DEĞİŞİMİ (SALDIRI SİMÜLASYONU)"
+            Write-Host "📖 Bu bölümde, orijinal DLL'in kötü niyetli bir DLL ile değiştirilmesi"
+            Write-Host "   durumunda ne olacağını göstereceğiz."
             Write-Host ""
 
             # Dosya kontrolü
             if (Test-Path "matematik.dll" -and Test-Path "malicious_matematik.dll") {
-                Write-ColoredText "Orijinal DLL yedekleniyor..." "Yellow"
+                Write-ColoredText "💾 Orijinal DLL yedekleniyor..." "Yellow"
                 Copy-Item -Path .\matematik.dll -Destination .\matematik.dll.original
 
-                Write-ColoredText "DLL kotu niyetli versiyonu ile degistiriliyor..." "Red"
+                Write-ColoredText "🦠 DLL kötü niyetli versiyonu ile değiştiriliyor..." "Red"
                 Copy-Item -Path .\malicious_matematik.dll -Destination .\matematik.dll -Force
 
-                Write-ColoredText "matematik_client.exe uygulamasi kotu niyetli DLL ile calistiriliyor..." "Red"
-                Write-ColoredText "DİKKAT: Mesaj kutulari acilacaktir!" "Red"
+                Write-ColoredText "🚀 matematik_client.exe uygulaması kötü niyetli DLL ile çalıştırılıyor..." "Red"
+                Write-ColoredText "⚠️  DİKKAT: Güvenlik uyarı mesajları açılacaktır!" "Red"
                 Wait-ForUser
 
                 # matematik_client.exe tekrar çalıştır (kötü niyetli DLL ile)
@@ -141,31 +148,32 @@ if (Test-Path $buildDir) {
 
                 # Log dosyasını oku ve göster
                 if (Test-Path "malicious_dll_events.log") {
-                    Show-Header -Title "malicious_dll_events.log ICERIGI"
+                    Show-Header -Title "📄 malicious_dll_events.log İÇERİĞİ"
                     Get-Content "malicious_dll_events.log" | ForEach-Object {
-                        Write-ColoredText $_ "Red"
+                        Write-ColoredText "   $_" "Red"
                     }
                 } else {
-                    Write-ColoredText "malicious_dll_events.log dosyasi bulunamadi!" "Red"
+                    Write-ColoredText "❌ malicious_dll_events.log dosyası bulunamadı!" "Red"
                 }
 
                 # Orijinal DLL'i geri yükle
-                Write-ColoredText "Orijinal DLL geri yukleniyor..." "Green"
+                Write-ColoredText "🔄 Orijinal DLL geri yükleniyor..." "Green"
                 Copy-Item -Path .\matematik.dll.original -Destination .\matematik.dll -Force
                 Remove-Item -Path .\matematik.dll.original -Force
             } else {
-                Write-ColoredText "Hata: matematik.dll veya malicious_matematik.dll bulunamadi!" "Red"
+                Write-ColoredText "❌ Hata: matematik.dll veya malicious_matematik.dll bulunamadı!" "Red"
+                Write-ColoredText "💡 Önce 'cmake --build . --config Debug' komutunu çalıştırın" "Yellow"
             }
 
             Wait-ForUser
 
             # BÖLÜM 4: Statik Bağlama (İmplisit vs Explisit Yükleme Karşılaştırması)
-            Show-Header -Title "BOLUM 4: STATIK BAGLAMA VS DLL KARSILASTIRMASI"
-            Write-Host "Statik baglama durumunda, kod dogrudan uygulamaya dahil edilir,"
-            Write-Host "bu nedenle DLL degisimi gibi saldirilardan etkilenmez."
+            Show-Header -Title "BÖLÜM 4: STATİK BAĞLAMA VS DLL KARŞILAŞTIRMASI"
+            Write-Host "📖 Statik bağlama durumunda, kod doğrudan uygulamaya dahil edilir,"
+            Write-Host "   bu nedenle DLL değişimi gibi saldırılardan etkilenmez."
             Write-Host ""
-            Write-ColoredText "matematik_static_client.exe uygulamasi calistiriliyor..." "Yellow"
-            Write-ColoredText "(Bu uygulama, statik bagli kutuphaneleri kullandigi icin DLL yukleme eventi olmaz)" "Yellow"
+            Write-ColoredText "🚀 matematik_static_client.exe uygulaması çalıştırılıyor..." "Yellow"
+            Write-ColoredText "   (Bu uygulama, statik bağlı kütüphaneleri kullandığı için DLL yükleme eventi olmaz)" "Yellow"
             Wait-ForUser
 
             # Dosya kontrolü
@@ -173,27 +181,35 @@ if (Test-Path $buildDir) {
                 # matematik_static_client.exe çalıştır
                 Start-Process -FilePath .\matematik_static_client.exe -Wait
             } else {
-                Write-ColoredText "Hata: matematik_static_client.exe bulunamadi!" "Red"
+                Write-ColoredText "❌ Hata: matematik_static_client.exe bulunamadı!" "Red"
+                Write-ColoredText "💡 Önce 'cmake --build . --config Debug' komutunu çalıştırın" "Yellow"
             }
         } else {
-            Write-ColoredText "Hata: explicit_dll_loader.exe bulunamadi!" "Red"
+            Write-ColoredText "❌ Hata: explicit_dll_loader.exe bulunamadı!" "Red"
+            Write-ColoredText "💡 Önce 'cmake --build . --config Debug' komutunu çalıştırın" "Yellow"
         }
     } else {
-        Write-ColoredText "Hata: matematik_client.exe bulunamadi!" "Red"
+        Write-ColoredText "❌ Hata: matematik_client.exe bulunamadı!" "Red"
+        Write-ColoredText "💡 Önce 'cmake --build . --config Debug' komutunu çalıştırın" "Yellow"
     }
 } else {
-    Write-ColoredText "Hata: Build klasörü bulunamadı: $buildDir" "Red"
+    Write-ColoredText "❌ Hata: Build klasörü bulunamadı: $buildDir" "Red"
+    Write-ColoredText "💡 Önce aşağıdaki komutları çalıştırın:" "Yellow"
+    Write-ColoredText "   mkdir build-test" "Gray"
+    Write-ColoredText "   cd build-test" "Gray"
+    Write-ColoredText "   cmake .." "Gray"
+    Write-ColoredText "   cmake --build . --config Debug" "Gray"
 }
 
-Show-Header -Title "SIMULASYON TAMAMLANDI"
-Write-Host "Bu simulasyon boyunca, dinamik ve statik kutuphanelerin farkli"
-Write-Host "yukleme mekanizmalarini ve DLL degisiminin etkilerini gordunuz."
+Show-Header -Title "🎉 SİMÜLASYON TAMAMLANDI"
+Write-Host "📚 Bu simülasyon boyunca, dinamik ve statik kütüphanelerin farklı"
+Write-Host "   yükleme mekanizmalarını ve DLL değişiminin etkilerini gördünüz."
 Write-Host ""
-Write-Host "Ozetlersek:"
-Write-Host "1. Implisit Yukleme: Program basladiginda otomatik DLL yukleme"
-Write-Host "2. Explisit Yukleme: Programin LoadLibrary/FreeLibrary API'lerini kullanmasi"
-Write-Host "3. DLL Degisimi: Kotu niyetli DLL degistirildiginde guvenlik riskleri"
-Write-Host "4. Statik Baglama: Kodun dogrudan programa dahil edilmesi, DLL degisiminden etkilenmez"
+Write-Host "📋 Özetlersek:"
+Write-Host "   1️⃣  İmplisit Yükleme: Program başladığında otomatik DLL yükleme"
+Write-Host "   2️⃣  Eksplisit Yükleme: Programın LoadLibrary/FreeLibrary API'lerini kullanması"
+Write-Host "   3️⃣  DLL Değişimi: Kötü niyetli DLL değiştirildiğinde güvenlik riskleri"
+Write-Host "   4️⃣  Statik Bağlama: Kodun doğrudan programa dahil edilmesi, DLL değişiminden etkilenmez"
 Write-Host ""
-Write-ColoredText "Simulasyonu sonlandirmak icin bir tusa basin..." "Green"
+Write-ColoredText "🚪 Simülasyonu sonlandırmak için bir tuşa basın..." "Green"
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") 

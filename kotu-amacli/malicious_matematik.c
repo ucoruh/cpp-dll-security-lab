@@ -1,4 +1,5 @@
 #define MATEMATIK_EXPORTS
+#define _CRT_SECURE_NO_WARNINGS  // Güvenlik uyarılarını bastır
 #include "matematik.h"
 #include <stdio.h>
 #include <windows.h>
@@ -9,7 +10,10 @@ FILE* logFile = NULL;
 // DLL yaşam döngüsü eventi yazdırma fonksiyonu
 void LogDllEvent(const char* event) {
     if (logFile == NULL) {
-        logFile = fopen("malicious_dll_events.log", "a");
+        errno_t err = fopen_s(&logFile, "malicious_dll_events.log", "a");
+        if (err != 0) {
+            logFile = NULL;
+        }
     }
     
     if (logFile != NULL) {
@@ -28,7 +32,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     switch (fdwReason) {
         case DLL_PROCESS_ATTACH:
             LogDllEvent("DLL_PROCESS_ATTACH: Kotu niyetli DLL bir process'e yuklendi.");
-            sprintf(buffer, "   Saldiri baslatiliyor... Process ID: %lu", GetCurrentProcessId());
+            sprintf_s(buffer, sizeof(buffer), "   Saldiri baslatiliyor... Process ID: %lu", GetCurrentProcessId());
             LogDllEvent(buffer);
             // Her thread için DLL_THREAD_ATTACH çağrılmasını engellemek için
             DisableThreadLibraryCalls(hinstDLL);
@@ -43,7 +47,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
             break;
             
         case DLL_PROCESS_DETACH:
-            sprintf(buffer, "DLL_PROCESS_DETACH: Kotu niyetli DLL process'ten ayrildi. Process ID: %lu", 
+            sprintf_s(buffer, sizeof(buffer), "DLL_PROCESS_DETACH: Kotu niyetli DLL process'ten ayrildi. Process ID: %lu", 
                     GetCurrentProcessId());
             LogDllEvent(buffer);
             
@@ -67,7 +71,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 // Fonksiyon çağrı kaydını tutan fonksiyon
 void LogFunctionCall(const char* functionName, int a, int b) {
     char buffer[256];
-    sprintf(buffer, "KOTU NIYETLI FONKSIYON CAGRISI: %s(%d, %d) - Veri caliyor...", 
+    sprintf_s(buffer, sizeof(buffer), "KOTU NIYETLI FONKSIYON CAGRISI: %s(%d, %d) - Veri caliyor...", 
             functionName, a, b);
     LogDllEvent(buffer);
 }
